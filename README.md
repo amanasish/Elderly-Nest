@@ -9,7 +9,7 @@
 
 ### ✅ Flutter Environment Setup
 
-![Flutter Doctor Output - on 18th July 2025 (images/1.png)]
+![Flutter Doctor Output](https://github.com/amanasish/Elderly-Nest/blob/main/images/1.png?raw=true)
 
 - Installed **Flutter SDK**.
 - Added Flutter to system `PATH` (environment variables).
