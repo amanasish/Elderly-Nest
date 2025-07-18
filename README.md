@@ -9,6 +9,8 @@
 
 ### ✅ Flutter Environment Setup
 
+![Flutter Doctor Output - on 18th July 2025 (images/1.png)]
+
 - Installed **Flutter SDK**.
 - Added Flutter to system `PATH` (environment variables).
 - Verified installation:
