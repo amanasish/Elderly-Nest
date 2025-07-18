@@ -19,7 +19,36 @@ flutter doctor
 - Added Flutter to system `PATH` (environment variables).
 - Verified installation:
 
+---
 
+### ✅ Setting up Dependencies in `pubspec.yaml`
+
+
+![flutter pub get](https://github.com/amanasish/Elderly-Nest/blob/main/images/10.png?raw=true)
+
+After verifying the Flutter environment (`flutter doctor`), I proceeded to configure the app dependencies by editing the  `pubspec.yaml` file.
+
+✅ Key Steps:
+
+- Added essential packages like path_provider and cached_network_image.
+
+- Confirmed the correct Flutter SDK version.
+
+Ran `flutter pub get` to fetch all dependencies.
+
+Explanation - `flutter pub get` essentially downloads and installs all the dependencies (packages) listed in your project's `pubspec.yaml` file, along with their own dependencies (transitive dependencies). It also creates or updates a `pubspec.lock` file, which locks down the exact versions of those dependencies to ensure consistency across different environments.
+
+🔧 Updated `pubspec.yaml` section:
+
+```bash
+dependencies:
+  flutter:
+    sdk: flutter
+
+  path_provider: ^2.0.15
+  cached_network_image: ^3.3.0
+  cupertino_icons: ^1.0.2
+```
 ---
 
 ### ✅ VS Code Setup
@@ -134,7 +163,12 @@ Used `setState()` to switch tabs.
 Issue: Forgot to add MenuTab() in list → fixed.
 
 
----
+---  
+### ✅ File Structure
+
+![Vs Files](https://github.com/amanasish/Elderly-Nest/blob/main/images/9.png?raw=true)
+![Vs Files](https://github.com/amanasish/Elderly-Nest/blob/main/images/8.png?raw=true)
+
 
 ###  ✅ Login Page (login.dart)
 
@@ -259,6 +293,8 @@ Installed dependencies:
 npm install express mongoose
 ```
 
+![Node](https://github.com/amanasish/Elderly-Nest/blob/main/images/5.png?raw=true)
+
 
 ---
 
@@ -297,7 +333,12 @@ Explanation:
 
 ### ✅ MongoDB Setup
 
-Installed MongoDB application
+Installed MongoDB application & MongoDb Shell
+
+
+![MongoDB](https://github.com/amanasish/Elderly-Nest/blob/main/images/7.png?raw=true)
+
+![MongoDB Shell](https://github.com/amanasish/Elderly-Nest/blob/main/images/6.png?raw=true)
 
 Yet to configure connection in backend (coming Day 3)
 
