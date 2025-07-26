@@ -362,17 +362,7 @@ backend/
 
 ---
 
-🧭 Next Plan (18 July)
-
-Connect MongoDB with backend
-
-Create user login/register APIs
-
-Setup HTTP request in Flutter frontend
-
-Handle form data submission
-
-
+## 📆 Day 3 – 18th July 2025
 
 
 
