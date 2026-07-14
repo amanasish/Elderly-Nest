@@ -577,6 +577,8 @@ class _ProfileTabState extends State<ProfileTab> {
   String uniqueCode = '';
   String userId = '';
   bool isLoading = false;
+  List<dynamic> linkedAccounts = [];
+
   final TextEditingController codeController = TextEditingController();
 
   @override
@@ -599,6 +601,27 @@ class _ProfileTabState extends State<ProfileTab> {
       uniqueCode = prefs.getString('uniqueCode') ?? 'NA';
       userId = prefs.getString('userId') ?? 'NA';
     });
+    
+    if (userId != 'NA' && userId.isNotEmpty) {
+      fetchProfileData();
+    }
+  }
+
+  Future<void> fetchProfileData() async {
+    final url = Uri.parse('https://elderly-care-backend-giv2.onrender.com/api/userProfile/$userId');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final res = jsonDecode(response.body);
+        if (res['status'] == 1 && res['data'] != null) {
+          setState(() {
+            linkedAccounts = res['data']['linkedUsers'] ?? [];
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching profile: $e");
+    }
   }
 
   Future<void> linkUser() async {
@@ -644,6 +667,7 @@ class _ProfileTabState extends State<ProfileTab> {
           SnackBar(content: Text('Accounts linked successfully!')),
         );
         codeController.clear();
+        fetchProfileData();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(res['message'] ?? 'Failed to link account.')),
@@ -757,6 +781,33 @@ class _ProfileTabState extends State<ProfileTab> {
                   ),
                 ),
               ),
+              SizedBox(height: 24),
+              if (linkedAccounts.isNotEmpty) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Linked Accounts',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+                  ),
+                ),
+                SizedBox(height: 12),
+                ...linkedAccounts.map((account) {
+                  return Card(
+                    elevation: 2,
+                    margin: EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.teal.shade50,
+                        child: Icon(Icons.person, color: Colors.teal),
+                      ),
+                      title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(account['email'] ?? ''),
+                      trailing: Text('Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  );
+                }).toList(),
+              ],
             ],
           ),
         ),
