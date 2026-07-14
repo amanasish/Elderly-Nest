@@ -11,7 +11,7 @@ const router = express.Router();
 // Sample route
 
 router.get('/', (req, res) => {
-  res.send('User route is working!');
+  res.send('User route is working! (v2)');
 });
 
 // Helper to generate random code
