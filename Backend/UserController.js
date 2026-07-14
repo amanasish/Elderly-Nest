@@ -1,10 +1,10 @@
 const express = require('express');
 const bcrypt = require("bcryptjs");
-const { dbConnection } = require("../src/config/dbConnection"); // adjust path as needed
+const { dbConnection } = require("./dbConnection"); // adjust path as needed
 
 
 
-const User = require("../models/user");
+const User = require("./user");
 
 const router = express.Router();
 
@@ -140,11 +140,70 @@ router.post('/userLogin', async (req, res) => {
   }
 });
 
+// Link Caregiver and Elder using Elder's uniqueCode
+router.post('/linkUser', async (req, res) => {
+  try {
+    const { userId, uniqueCode } = req.body;
+    const { ObjectId } = require('mongodb');
 
+    if (!userId || !uniqueCode) {
+      return res.status(400).json({ status: 0, message: "userId and uniqueCode are required." });
+    }
 
+    const db = await dbConnection();
+    const users = db.collection("User");
 
+    // 1. Find the elder user by uniqueCode
+    const elder = await users.findOne({ uniqueCode: uniqueCode });
+    if (!elder) {
+      return res.status(404).json({ status: 0, message: "User with this unique code not found." });
+    }
 
+    // 2. Find the caregiver user by userId
+    let caregiverObjectId;
+    try {
+      caregiverObjectId = new ObjectId(userId);
+    } catch (e) {
+      return res.status(400).json({ status: 0, message: "Invalid userId format." });
+    }
 
+    const caregiver = await users.findOne({ _id: caregiverObjectId });
+    if (!caregiver) {
+      return res.status(404).json({ status: 0, message: "Caregiver user not found." });
+    }
+
+    // Check if already linked
+    const alreadyLinked = caregiver.linkedUsers && caregiver.linkedUsers.some(id => id.toString() === elder._id.toString());
+    if (alreadyLinked) {
+      return res.status(400).json({ status: 0, message: "Users are already linked." });
+    }
+
+    // 3. Link them by pushing each other's ID to their linkedUsers array
+    await users.updateOne(
+      { _id: caregiverObjectId },
+      { $addToSet: { linkedUsers: elder._id } }
+    );
+
+    await users.updateOne(
+      { _id: elder._id },
+      { $addToSet: { linkedUsers: caregiverObjectId } }
+    );
+
+    res.status(200).json({
+      status: 1,
+      message: "Users linked successfully",
+      data: {
+        caregiverId: caregiver._id,
+        elderId: elder._id,
+        elderName: elder.name,
+        elderEmail: elder.email
+      }
+    });
+  } catch (error) {
+    console.error("Link User Error:", error);
+    res.status(500).json({ status: 0, message: "Internal server error" });
+  }
+});
 
 
 module.exports = router;

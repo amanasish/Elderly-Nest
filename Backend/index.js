@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const express = require('express');
-const { dbConnection } = require("./config/dbConnection");
-const userRoutes = require("../API/UserController.js"); // 👈 Imported controller
+const { dbConnection } = require("./dbConnection");
+const userRoutes = require("./UserController"); // 👈 Imported controller
 const cors = require('cors'); 
 
 const app = express();
