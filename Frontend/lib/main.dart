@@ -2,6 +2,8 @@ import 'package:flutter/material.dart'; // package that adds buttons functions
 import 'login.dart';
 import 'register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 
@@ -327,17 +329,24 @@ class ProfileTab extends StatefulWidget {
   _ProfileTabState createState() => _ProfileTabState();
 }
 
-
-
 class _ProfileTabState extends State<ProfileTab> {
   String name = '';
   String email = '';
   String uniqueCode = '';
+  String userId = '';
+  bool isLoading = false;
+  final TextEditingController codeController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     loadUserData();
+  }
+
+  @override
+  void dispose() {
+    codeController.dispose();
+    super.dispose();
   }
 
   Future<void> loadUserData() async {
@@ -346,9 +355,52 @@ class _ProfileTabState extends State<ProfileTab> {
       name = prefs.getString('name') ?? 'NA';
       email = prefs.getString('email') ?? 'NA';
       uniqueCode = prefs.getString('uniqueCode') ?? 'NA';
+      userId = prefs.getString('userId') ?? 'NA';
     });
   }
 
+  Future<void> linkUser() async {
+    final code = codeController.text.trim();
+    if (code.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a valid unique code.')),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    final url = Uri.parse('https://eldernest.onrender.com/api/linkUser');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userId': userId,
+          'uniqueCode': code,
+        }),
+      );
+
+      final res = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && res['status'] == 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Accounts linked successfully!')),
+        );
+        codeController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(res['message'] ?? 'Failed to link account.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: Failed to connect to server.')),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -358,33 +410,71 @@ class _ProfileTabState extends State<ProfileTab> {
         backgroundColor: Colors.teal,
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.teal,
-              child: Icon(Icons.person, size: 60, color: Colors.white),
-            ),
-            SizedBox(height: 20),
-            Text(
-              name ?? '',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              email ?? '',
-              style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-            ),
-            SizedBox(height: 30),
-            Divider(thickness: 1.2),
-            SizedBox(height: 10),
-            Text(
-              'View and edit your profile.',
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.teal,
+                child: Icon(Icons.person, size: 60, color: Colors.white),
+              ),
+              SizedBox(height: 20),
+              Text(
+                name,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                email,
+                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'My Code: $uniqueCode',
+                style: TextStyle(fontSize: 14, color: Colors.teal, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: 20),
+              Divider(thickness: 1.2),
+              SizedBox(height: 10),
+              
+              // Caregiver Linking Section
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Link Account',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Enter the Unique Code of the Elder you want to link with.',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+              SizedBox(height: 15),
+              TextField(
+                controller: codeController,
+                decoration: InputDecoration(
+                  labelText: "Elder's Unique Code",
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.link),
+                ),
+              ),
+              SizedBox(height: 15),
+              isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton.icon(
+                      onPressed: linkUser,
+                      icon: Icon(Icons.add),
+                      label: Text('Link Elder'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        minimumSize: Size(double.infinity, 45),
+                      ),
+                    ),
+            ],
+          ),
         ),
       ),
     );

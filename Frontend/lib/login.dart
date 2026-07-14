@@ -40,6 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setString('name', jsonData['data']['name']);
         await prefs.setString('email', jsonData['data']['email']);
         await prefs.setString('uniqueCode', jsonData['data']['uniqueCode']);
+        await prefs.setString('userId', jsonData['data']['_id']);
 
 
         // Show success message
