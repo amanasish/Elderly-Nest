@@ -206,6 +206,54 @@ router.post('/linkUser', async (req, res) => {
 });
 
 
+// Get user profile and populated linked users
+router.get('/userProfile/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { ObjectId } = require('mongodb');
+
+    let userObjectId;
+    try {
+      userObjectId = new ObjectId(userId);
+    } catch (e) {
+      return res.status(400).json({ status: 0, message: "Invalid userId format." });
+    }
+
+    const db = await dbConnection();
+    const users = db.collection("User");
+
+    const user = await users.findOne({ _id: userObjectId });
+    if (!user) {
+      return res.status(404).json({ status: 0, message: "User not found." });
+    }
+
+    // Fetch details of linked users
+    let linkedUsersDetails = [];
+    if (user.linkedUsers && user.linkedUsers.length > 0) {
+      linkedUsersDetails = await users.find(
+        { _id: { $in: user.linkedUsers } },
+        { projection: { name: 1, email: 1, uniqueCode: 1 } }
+      ).toArray();
+    }
+
+    res.status(200).json({
+      status: 1,
+      message: "Profile fetched successfully",
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        uniqueCode: user.uniqueCode,
+        linkedUsers: linkedUsersDetails
+      }
+    });
+
+  } catch (error) {
+    console.error("Fetch Profile Error:", error);
+    res.status(500).json({ status: 0, message: "Internal server error" });
+  }
+});
+
 module.exports = router;
 
 
