@@ -68,13 +68,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.teal.shade50,
       appBar: AppBar(
-        title: Text('Register', style: AppStyles.headingMedium),
+        title: Text('Register', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.teal,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: AppStyles.pagePadding,
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -84,35 +86,63 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 fit: BoxFit.contain,
               ),
               SizedBox(height: 20),
-              Text('Create an Account', style: AppStyles.headingLarge),
-              SizedBox(height: 20),
-  
-              TextField(
-                controller: nameController,
-                decoration: AppStyles.textFieldDecoration.copyWith(labelText: 'Full Name'),
+              Card(
+                elevation: 4,
+                shadowColor: Colors.teal.withOpacity(0.2),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Create an Account',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal.shade800),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 20),
+                      TextField(
+                        controller: nameController,
+                        decoration: AppStyles.textFieldDecoration.copyWith(
+                          labelText: 'Full Name',
+                          prefixIcon: Icon(Icons.person, color: Colors.teal),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: emailController,
+                        decoration: AppStyles.textFieldDecoration.copyWith(
+                          labelText: 'Email',
+                          prefixIcon: Icon(Icons.email, color: Colors.teal),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: AppStyles.textFieldDecoration.copyWith(
+                          labelText: 'Password',
+                          prefixIcon: Icon(Icons.lock, color: Colors.teal),
+                        ),
+                      ),
+                      SizedBox(height: 24),
+                      isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              onPressed: registerUser,
+                              child: Text('Register'),
+                            ),
+                    ],
+                  ),
+                ),
               ),
-              SizedBox(height: 16),
-  
-              TextField(
-                controller: emailController,
-                decoration: AppStyles.textFieldDecoration.copyWith(labelText: 'Email'),
-              ),
-              SizedBox(height: 16),
-  
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: AppStyles.textFieldDecoration.copyWith(labelText: 'Password'),
-              ),
-              SizedBox(height: 24),
-  
-              isLoading
-                  ? CircularProgressIndicator()
-                  : ElevatedButton(
-                      style: AppStyles.elevatedButtonStyle,
-                      onPressed: registerUser,
-                      child: Text('Register'),
-                    ),
             ],
           ),
         ),

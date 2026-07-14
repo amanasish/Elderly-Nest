@@ -73,50 +73,80 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.teal.shade50,
       appBar: AppBar(
-        title: Text('Login', style: AppStyles.headingMedium),
+        title: Text('Login', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.teal,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: AppStyles.pagePadding,
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
                 'assets/icons/LogImg1.png',
-                height: 180,
+                height: 200,
                 fit: BoxFit.contain,
               ),
               SizedBox(height: 24),
-              Text('Please Login', style: AppStyles.headingLarge),
-              SizedBox(height: 24),
-  
-              TextField(
-                controller: emailController,
-                decoration: AppStyles.textFieldDecoration.copyWith(labelText: 'Email'),
+              Card(
+                elevation: 4,
+                shadowColor: Colors.teal.withOpacity(0.2),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Please Login',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal.shade800),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 20),
+                      TextField(
+                        controller: emailController,
+                        decoration: AppStyles.textFieldDecoration.copyWith(
+                          labelText: 'Email',
+                          prefixIcon: Icon(Icons.email, color: Colors.teal),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: AppStyles.textFieldDecoration.copyWith(
+                          labelText: 'Password',
+                          prefixIcon: Icon(Icons.lock, color: Colors.teal),
+                        ),
+                      ),
+                      SizedBox(height: 24),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: loginUser,
+                        child: Text('Login'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               SizedBox(height: 16),
-  
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: AppStyles.textFieldDecoration.copyWith(labelText: 'Password'),
-              ),
-              SizedBox(height: 24),
-  
-              ElevatedButton(
-                style: AppStyles.elevatedButtonStyle,
-                onPressed: loginUser,
-                child: Text('Login'),
-              ),
-              SizedBox(height: 16),
-  
               TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/register');
                 },
-                child: Text("Don't have an account? Register"),
+                child: Text(
+                  "Don't have an account? Register",
+                  style: TextStyle(color: Colors.teal.shade800, fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),

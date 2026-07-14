@@ -4,6 +4,7 @@ import 'register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/services.dart';
 
 
 
@@ -136,20 +137,11 @@ class _BottomTabScreenState extends State<BottomTabScreen> {
 // ),
 
 //     );
-//   }
-// }
-
-
-
-
 /// Home Tab
 
 class HomeTab extends StatefulWidget {
-
   final bool showWelcome;
-
   const HomeTab({Key? key, this.showWelcome = false}) : super(key: key);
-
 
   @override
   _HomeTabState createState() => _HomeTabState();
@@ -195,7 +187,6 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
     }
   }
 
-
   void loadUniqueCode() async {
     final prefs = await SharedPreferences.getInstance();
     final code = prefs.getString('uniqueCode') ?? 'Not found';
@@ -203,6 +194,7 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
       _uniqueCode = code;
     });
   }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -213,21 +205,109 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('🏘 Home'),
+        title: Text('🏘 Home', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.teal,
         centerTitle: true,
+        elevation: 0,
       ),
       body: Stack(
         children: [
-          // Main content of the Home tab
-          Center(
-              child: Text(
-                'Your Unique Code: $_uniqueCode',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.teal.shade50, Colors.white],
               ),
+            ),
           ),
-
-          // Welcome overlay
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Card(
+                    elevation: 4,
+                    shadowColor: Colors.teal.withOpacity(0.2),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Icon(Icons.volunteer_activism, size: 60, color: Colors.teal),
+                          SizedBox(height: 12),
+                          Text(
+                            "Welcome to ElderNest",
+                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal.shade800),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            "Connecting caretakers and elders with care and compassion.",
+                            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Card(
+                    elevation: 4,
+                    shadowColor: Colors.teal.withOpacity(0.2),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            "Share Your Unique Code",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.teal.shade700),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 6),
+                          Text(
+                            "Give this code to your caregiver or elder to link accounts.",
+                            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 16),
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _uniqueCode,
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.copy, color: Colors.teal),
+                                  onPressed: () {
+                                    Clipboard.setData(ClipboardData(text: _uniqueCode));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Code copied to clipboard!')),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           if (_showWelcomeOverlay)
             Positioned.fill(
               child: Container(
@@ -235,16 +315,27 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                 child: Center(
                   child: ScaleTransition(
                     scale: _scaleAnimation,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Welcome to ElderNest!',
-                          style: TextStyle(fontSize: 24, color: Colors.white),
-                        ),
-                        SizedBox(height: 10),
-                        CircularProgressIndicator(color: Colors.white),
-                      ],
+                    child: Container(
+                      padding: EdgeInsets.all(24),
+                      margin: EdgeInsets.symmetric(horizontal: 40),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.check_circle, size: 60, color: Colors.teal),
+                          SizedBox(height: 16),
+                          Text(
+                            'Welcome to ElderNest!',
+                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 10),
+                          CircularProgressIndicator(color: Colors.teal),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -254,71 +345,155 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
       ),
     );
   }
-
-  }
-
-
-
+}
 
 /// Medicine Tab
 
+class MedicineTab extends StatefulWidget {
+  @override
+  _MedicineTabState createState() => _MedicineTabState();
+}
 
-class MedicineTab extends StatelessWidget {
+class _MedicineTabState extends State<MedicineTab> {
+  final TextEditingController searchController = TextEditingController();
+  List<dynamic> searchResults = [];
+  bool isSearching = false;
+
+  Future<void> searchMedicine() async {
+    final query = searchController.text.trim();
+    if (query.isEmpty) return;
+
+    setState(() {
+      isSearching = true;
+      searchResults = [];
+    });
+
+    final url = Uri.parse('https://rxnav.nlm.nih.gov/REST/drugs.json?name=$query');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final drugGroup = data['drugGroup'];
+        if (drugGroup != null && drugGroup['conceptGroup'] != null) {
+          final List<dynamic> concepts = [];
+          for (var group in drugGroup['conceptGroup']) {
+            if (group['conceptProperties'] != null) {
+              concepts.addAll(group['conceptProperties']);
+            }
+          }
+          setState(() {
+            searchResults = concepts;
+          });
+        }
+      }
+      if (searchResults.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No drugs found with that name.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching drug information.')),
+      );
+    } finally {
+      setState(() {
+        isSearching = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('👨🏾‍⚕️ Medicine'),
+        title: Text('👨🏾‍⚕️ Medicine Search', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.teal,
         centerTitle: true,
+        elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.medication_liquid, size: 80, color: Colors.teal),
-            SizedBox(height: 24),
-            Text(
-              'Medicine Management',
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.teal.shade700,
-              ),
-              textAlign: TextAlign.center,
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: "Enter drug name (e.g., Aspirin)",
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: searchMedicine,
+                  child: Text('Search'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 16),
-            Text(
-              'Keep track of your prescriptions, doses, and medicine reminders to stay on top of your health needs.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black87,
+            if (isSearching)
+              CircularProgressIndicator()
+            else
+              Expanded(
+                child: searchResults.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.search, size: 80, color: Colors.grey[300]),
+                            SizedBox(height: 16),
+                            Text(
+                              "Search for a universal drug to see details",
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: searchResults.length,
+                        itemBuilder: (context, index) {
+                          final drug = searchResults[index];
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 6),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            child: ListTile(
+                              leading: Icon(Icons.medication, color: Colors.teal),
+                              title: Text(
+                                drug['name'] ?? '',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                drug['synonym'] != null && drug['synonym'].toString().isNotEmpty
+                                    ? "Synonym: ${drug['synonym']}"
+                                    : "RxCUI: ${drug['rxcui']}",
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
               ),
-            ),
-            SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: () {
-                // Navigate to add/view medicines page
-              },
-              icon: Icon(Icons.add_alarm),
-              label: Text("Set Reminder"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
   }
 }
-
 
 
 
@@ -368,6 +543,20 @@ class _ProfileTabState extends State<ProfileTab> {
       return;
     }
 
+    if (code == uniqueCode) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You cannot link with your own code.')),
+      );
+      return;
+    }
+
+    if (userId == 'NA' || userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please log out and log back in to activate linking.')),
+      );
+      return;
+    }
+
     setState(() => isLoading = true);
 
     final url = Uri.parse('https://eldernest.onrender.com/api/linkUser');
@@ -406,73 +595,101 @@ class _ProfileTabState extends State<ProfileTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('👤 Profile'),
+        title: Text('👤 Profile', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.teal,
         centerTitle: true,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.teal,
-                child: Icon(Icons.person, size: 60, color: Colors.white),
-              ),
-              SizedBox(height: 20),
-              Text(
-                name,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              Text(
-                email,
-                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'My Code: $uniqueCode',
-                style: TextStyle(fontSize: 14, color: Colors.teal, fontWeight: FontWeight.w600),
-              ),
-              SizedBox(height: 20),
-              Divider(thickness: 1.2),
-              SizedBox(height: 10),
-              
-              // Caregiver Linking Section
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Link Account',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Enter the Unique Code of the Elder you want to link with.',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-              SizedBox(height: 15),
-              TextField(
-                controller: codeController,
-                decoration: InputDecoration(
-                  labelText: "Elder's Unique Code",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.link),
-                ),
-              ),
-              SizedBox(height: 15),
-              isLoading
-                  ? CircularProgressIndicator()
-                  : ElevatedButton.icon(
-                      onPressed: linkUser,
-                      icon: Icon(Icons.add),
-                      label: Text('Link Elder'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal,
-                        minimumSize: Size(double.infinity, 45),
+              Card(
+                elevation: 4,
+                shadowColor: Colors.teal.withOpacity(0.2),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.teal.shade50,
+                        child: Icon(Icons.person, size: 60, color: Colors.teal),
                       ),
-                    ),
+                      SizedBox(height: 20),
+                      Text(
+                        name,
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        email,
+                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      ),
+                      SizedBox(height: 12),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.teal.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'My Code: $uniqueCode',
+                          style: TextStyle(fontSize: 13, color: Colors.teal, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 24),
+              Card(
+                elevation: 4,
+                shadowColor: Colors.teal.withOpacity(0.2),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Link Account',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Enter the Unique Code of the Elder you want to link with.',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                      SizedBox(height: 15),
+                      TextField(
+                        controller: codeController,
+                        decoration: InputDecoration(
+                          labelText: "Elder's Unique Code",
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          prefixIcon: Icon(Icons.link),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : ElevatedButton.icon(
+                              onPressed: linkUser,
+                              icon: Icon(Icons.add),
+                              label: Text('Link Elder'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal,
+                                foregroundColor: Colors.white,
+                                minimumSize: Size(double.infinity, 48),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
