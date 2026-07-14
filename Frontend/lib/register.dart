@@ -80,10 +80,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/icons/RegImg1.png',
-                height: 180,
-                fit: BoxFit.contain,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.asset(
+                  'assets/icons/RegImg1.png',
+                  height: 180,
+                  fit: BoxFit.cover,
+                ),
               ),
               SizedBox(height: 20),
               Card(

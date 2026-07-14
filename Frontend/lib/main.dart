@@ -73,29 +73,38 @@ class _BottomTabScreenState extends State<BottomTabScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
+    return WillPopScope(
+      onWillPop: () async {
+        if (_selectedIndex != 0) {
           setState(() {
-            _selectedIndex = index;
+            _selectedIndex = 0;
           });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.medication),label: 'Medicine',),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Menu'),
-        ],
-
+          return false; // Intercept/prevent popping
+        }
+        return false; // Intercept/prevent popping (stay on Home)
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _screens,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.green,
+          unselectedItemColor: Colors.grey,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.medication),label: 'Medicine',),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+            BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Menu'),
+          ],
+        ),
       ),
-    );
   }
 }
 
@@ -469,19 +478,76 @@ class _MedicineTabState extends State<MedicineTab> {
                         itemBuilder: (context, index) {
                           final drug = searchResults[index];
                           return Card(
-                            margin: EdgeInsets.symmetric(vertical: 6),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            child: ListTile(
-                              leading: Icon(Icons.medication, color: Colors.teal),
-                              title: Text(
-                                drug['name'] ?? '',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              subtitle: Text(
-                                drug['synonym'] != null && drug['synonym'].toString().isNotEmpty
-                                    ? "Synonym: ${drug['synonym']}"
-                                    : "RxCUI: ${drug['rxcui']}",
-                                style: TextStyle(color: Colors.grey[600]),
+                            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                            elevation: 2,
+                            shadowColor: Colors.teal.withOpacity(0.1),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(Icons.medication, color: Colors.teal, size: 24),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          drug['name'] ?? '',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.teal.shade900,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 12),
+                                  Divider(height: 1, color: Colors.grey.shade200),
+                                  SizedBox(height: 12),
+                                  if (drug['synonym'] != null && drug['synonym'].toString().isNotEmpty) ...[
+                                    Text(
+                                      "SYNONYM",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[500],
+                                        letterSpacing: 1.2,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      drug['synonym'],
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontFamily: 'Courier',
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    SizedBox(height: 12),
+                                  ],
+                                  Text(
+                                    "RXCUI CONCEPT ID",
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[500],
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    drug['rxcui'] ?? 'N/A',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontFamily: 'Courier',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.teal.shade700,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           );

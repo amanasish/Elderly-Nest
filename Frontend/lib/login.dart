@@ -14,8 +14,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
 
   Future<void> loginUser() async {
+    setState(() => isLoading = true);
     final url = Uri.parse('https://eldernest.onrender.com/api/userLogin');
 
     try {
@@ -67,6 +69,8 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),
       );
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -85,10 +89,13 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/icons/LogImg1.png',
-                height: 200,
-                fit: BoxFit.contain,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.asset(
+                  'assets/icons/LogImg1.png',
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
               ),
               SizedBox(height: 24),
               Card(
@@ -123,17 +130,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: 24),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: loginUser,
-                        child: Text('Login'),
-                      ),
+                      isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              onPressed: loginUser,
+                              child: Text('Login'),
+                            ),
                     ],
                   ),
                 ),
