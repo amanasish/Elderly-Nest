@@ -626,7 +626,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
     setState(() => isLoading = true);
 
-    final url = Uri.parse('https://eldernest.onrender.com/api/linkUser');
+    final url = Uri.parse('https://elderly-care-backend-giv2.onrender.com/api/linkUser');
     try {
       final response = await http.post(
         url,
