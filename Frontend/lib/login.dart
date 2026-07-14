@@ -77,41 +77,49 @@ class _LoginScreenState extends State<LoginScreen> {
         title: Text('Login', style: AppStyles.headingMedium),
         backgroundColor: Colors.teal,
       ),
-      body: Padding(
-        padding: AppStyles.pagePadding,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Please Login', style: AppStyles.headingLarge),
-            SizedBox(height: 24),
-
-            TextField(
-              controller: emailController,
-              decoration: AppStyles.textFieldDecoration.copyWith(labelText: 'Email'),
-            ),
-            SizedBox(height: 16),
-
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: AppStyles.textFieldDecoration.copyWith(labelText: 'Password'),
-            ),
-            SizedBox(height: 24),
-
-            ElevatedButton(
-              style: AppStyles.elevatedButtonStyle,
-              onPressed: loginUser,
-              child: Text('Login'),
-            ),
-            SizedBox(height: 16),
-
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: Text("Don't have an account? Register"),
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: AppStyles.pagePadding,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/icons/LogImg1.png',
+                height: 180,
+                fit: BoxFit.contain,
+              ),
+              SizedBox(height: 24),
+              Text('Please Login', style: AppStyles.headingLarge),
+              SizedBox(height: 24),
+  
+              TextField(
+                controller: emailController,
+                decoration: AppStyles.textFieldDecoration.copyWith(labelText: 'Email'),
+              ),
+              SizedBox(height: 16),
+  
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: AppStyles.textFieldDecoration.copyWith(labelText: 'Password'),
+              ),
+              SizedBox(height: 24),
+  
+              ElevatedButton(
+                style: AppStyles.elevatedButtonStyle,
+                onPressed: loginUser,
+                child: Text('Login'),
+              ),
+              SizedBox(height: 16),
+  
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+                child: Text("Don't have an account? Register"),
+              ),
+            ],
+          ),
         ),
       ),
     );

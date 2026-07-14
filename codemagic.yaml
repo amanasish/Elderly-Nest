@@ -22,7 +22,7 @@ workflows:
           const file = 'android/app/src/main/AndroidManifest.xml';
           let content = fs.readFileSync(file, 'utf8');
           if (!content.includes('android.permission.INTERNET')) {
-            content = content.replace('<manifest', '<manifest>\n    <uses-permission android:name=\"android.permission.INTERNET\"/>');
+            content = content.replace('<application', '<uses-permission android:name=\"android.permission.INTERNET\"/>\n    <application');
           }
           fs.writeFileSync(file, content);
           "
