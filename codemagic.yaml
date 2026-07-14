@@ -12,6 +12,9 @@ workflows:
       branch_patterns:
         - pattern: main
     scripts:
+      - name: Regenerate platform directories
+        script: |
+          flutter create --platforms=android .
       - name: Fetch Flutter dependencies
         script: |
           flutter pub get
