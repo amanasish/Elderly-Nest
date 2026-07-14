@@ -105,6 +105,7 @@ class _BottomTabScreenState extends State<BottomTabScreen> {
           ],
         ),
       ),
+    );
   }
 }
 
