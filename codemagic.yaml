@@ -15,6 +15,17 @@ workflows:
       - name: Regenerate platform directories
         script: |
           flutter create --platforms=android .
+      - name: Add Internet Permission for Release Build
+        script: |
+          node -e "
+          const fs = require('fs');
+          const file = 'android/app/src/main/AndroidManifest.xml';
+          let content = fs.readFileSync(file, 'utf8');
+          if (!content.includes('android.permission.INTERNET')) {
+            content = content.replace('<manifest', '<manifest>\n    <uses-permission android:name=\"android.permission.INTERNET\"/>');
+          }
+          fs.writeFileSync(file, content);
+          "
       - name: Fetch Flutter dependencies
         script: |
           flutter pub get
