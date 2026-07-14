@@ -254,6 +254,48 @@ router.get('/userProfile/:userId', async (req, res) => {
   }
 });
 
+// Unlink Caregiver and Elder
+router.post('/unlinkUser', async (req, res) => {
+  try {
+    const { userId, elderId } = req.body;
+    const { ObjectId } = require('mongodb');
+
+    if (!userId || !elderId) {
+      return res.status(400).json({ status: 0, message: "userId and elderId are required." });
+    }
+
+    const db = await dbConnection();
+    const users = db.collection("User");
+
+    let caregiverObjectId, elderObjectId;
+    try {
+      caregiverObjectId = new ObjectId(userId);
+      elderObjectId = new ObjectId(elderId);
+    } catch (e) {
+      return res.status(400).json({ status: 0, message: "Invalid ID format." });
+    }
+
+    // Unlink them by pulling each other's ID from their linkedUsers array
+    await users.updateOne(
+      { _id: caregiverObjectId },
+      { $pull: { linkedUsers: elderObjectId } }
+    );
+
+    await users.updateOne(
+      { _id: elderObjectId },
+      { $pull: { linkedUsers: caregiverObjectId } }
+    );
+
+    res.status(200).json({
+      status: 1,
+      message: "User unlinked successfully"
+    });
+  } catch (error) {
+    console.error("Unlink User Error:", error);
+    res.status(500).json({ status: 0, message: "Internal server error" });
+  }
+});
+
 module.exports = router;
 
 

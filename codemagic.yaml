@@ -29,6 +29,9 @@ workflows:
       - name: Fetch Flutter dependencies
         script: |
           flutter pub get
+      - name: Generate App Icons
+        script: |
+          flutter pub run flutter_launcher_icons
       - name: Build Release APK
         script: |
           flutter build apk --release

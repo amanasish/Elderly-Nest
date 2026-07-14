@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart';
 
-
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 void main() {
   runApp(ElderlyCareApp());
@@ -17,19 +17,31 @@ void main() {
 class ElderlyCareApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-
-      title: 'ElderNest App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.teal),
-
-      /// Routes 
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => LoginScreen(),
-        '/home': (context) => BottomTabScreen(),
-        '/register': (context) => RegisterScreen(),
-        '/menu': (context) => MenuTab(), 
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder: (_, ThemeMode currentMode, __) {
+        return MaterialApp(
+          title: 'ElderNest App',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primarySwatch: Colors.teal,
+            brightness: Brightness.light,
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            primarySwatch: Colors.teal,
+            scaffoldBackgroundColor: Colors.grey[900],
+            cardColor: Colors.grey[850],
+          ),
+          themeMode: currentMode,
+          initialRoute: '/login',
+          routes: {
+            '/login': (context) => LoginScreen(),
+            '/home': (context) => BottomTabScreen(),
+            '/register': (context) => RegisterScreen(),
+            '/menu': (context) => MenuTab(), 
+          },
+        );
       },
     );
   }
@@ -219,6 +231,20 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
         backgroundColor: Colors.teal,
         centerTitle: true,
         elevation: 0,
+        actions: [
+          ValueListenableBuilder<ThemeMode>(
+            valueListenable: themeNotifier,
+            builder: (_, mode, __) {
+              return IconButton(
+                icon: Icon(mode == ThemeMode.light ? Icons.dark_mode : Icons.light_mode),
+                onPressed: () {
+                  themeNotifier.value =
+                      mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+                },
+              );
+            },
+          )
+        ],
       ),
       body: Stack(
         children: [
@@ -624,6 +650,38 @@ class _ProfileTabState extends State<ProfileTab> {
     }
   }
 
+  Future<void> unlinkUser(String elderId) async {
+    final url = Uri.parse('https://elderly-care-backend-giv2.onrender.com/api/unlinkUser');
+    setState(() => isLoading = true);
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userId': userId,
+          'elderId': elderId,
+        }),
+      );
+      final res = jsonDecode(response.body);
+      if (response.statusCode == 200 && res['status'] == 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Account unlinked successfully!')),
+        );
+        fetchProfileData();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(res['message'] ?? 'Failed to unlink account.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error connecting to server.')),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
   Future<void> linkUser() async {
     final code = codeController.text.trim();
     if (code.isEmpty) {
@@ -802,8 +860,12 @@ class _ProfileTabState extends State<ProfileTab> {
                         child: Icon(Icons.person, color: Colors.teal),
                       ),
                       title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(account['email'] ?? ''),
-                      trailing: Text('Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold)),
+                      subtitle: Text('${account['email'] ?? ''}\nCode: ${account['uniqueCode']}'),
+                      isThreeLine: true,
+                      trailing: IconButton(
+                        icon: Icon(Icons.link_off, color: Colors.red),
+                        onPressed: () => unlinkUser(account['_id']),
+                      ),
                     ),
                   );
                 }).toList(),
