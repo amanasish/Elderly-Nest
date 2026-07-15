@@ -151,8 +151,7 @@ class ElderlyCareApp extends StatelessWidget {
                       title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4.0),
-                        child: Text('${account['email'] ?? ''}
-Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                        child: Text('${account['email'] ?? ''}\nCode: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
                       ),
                       isThreeLine: true,
                       trailing: IconButton(
@@ -343,8 +342,7 @@ class _BottomTabScreenState extends State<BottomTabScreen> {
                       title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4.0),
-                        child: Text('${account['email'] ?? ''}
-Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                        child: Text('${account['email'] ?? ''}\nCode: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
                       ),
                       isThreeLine: true,
                       trailing: IconButton(
@@ -603,8 +601,7 @@ class _HomeTabState extends State<HomeTab> with TickerProviderStateMixin {
                       title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4.0),
-                        child: Text('${account['email'] ?? ''}
-Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                        child: Text('${account['email'] ?? ''}\nCode: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
                       ),
                       isThreeLine: true,
                       trailing: IconButton(
@@ -1016,8 +1013,7 @@ class _MedicineTabState extends State<MedicineTab> {
                       title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4.0),
-                        child: Text('${account['email'] ?? ''}
-Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                        child: Text('${account['email'] ?? ''}\nCode: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
                       ),
                       isThreeLine: true,
                       trailing: IconButton(
@@ -1330,8 +1326,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4.0),
-                        child: Text('${account['email'] ?? ''}
-Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                        child: Text('${account['email'] ?? ''}\nCode: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
                       ),
                       isThreeLine: true,
                       trailing: IconButton(
