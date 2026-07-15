@@ -1091,32 +1091,53 @@ class MenuTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('📝 Menu')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Menu',
-              style: TextStyle(fontSize: 24),
+      body: Column(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Menu',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 32),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.logout, color: Colors.white),
+                  label: Text('Logout', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  onPressed: () {
+                    // Navigate to login screen and remove previous routes
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/login', // login route
+                      (Route<dynamic> route) => false,
+                    );
+                  },
+                ),
+              ],
             ),
-            SizedBox(height: 32),
-            ElevatedButton.icon(
-              icon: Icon(Icons.logout),
-              label: Text('Logout'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
-              onPressed: () {
-                // Navigate to login screen and remove previous routes
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login', // login route
-                  (Route<dynamic> route) => false,
-                );
-              },
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24.0),
+            child: Column(
+              children: [
+                Text(
+                  "© 2026 Aman Asish Gupta",
+                  style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  "Made with ❤️ Eldernest",
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
