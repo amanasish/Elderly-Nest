@@ -17,32 +17,156 @@ void main() {
 class ElderlyCareApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeNotifier,
-      builder: (_, ThemeMode currentMode, __) {
-        return MaterialApp(
-          title: 'ElderNest App',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            primarySwatch: Colors.teal,
-            brightness: Brightness.light,
+    return Scaffold(
+      backgroundColor: Color(0xFF1C1C23),
+      appBar: AppBar(
+        title: Text('Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 22)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5))
+                  ]
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Color(0xFF6F51FF).withOpacity(0.2),
+                        child: Icon(Icons.person_rounded, size: 40, color: Color(0xFF6F51FF)),
+                      ),
+                      SizedBox(height: 16),
+                      Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                      SizedBox(height: 4),
+                      Text(email, style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+                      SizedBox(height: 16),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF1C1C23),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Color(0xFF3B3B4F)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.qr_code_rounded, size: 16, color: Color(0xFF6F51FF)),
+                            SizedBox(width: 8),
+                            Text("Code: $uniqueCode", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Link Another Account',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: linkCodeController,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Enter Unique Code',
+                          hintStyle: TextStyle(color: Colors.grey.shade500),
+                          prefixIcon: Icon(Icons.link_rounded, color: Colors.grey.shade500),
+                          fillColor: Color(0xFF1C1C23),
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      isLoading
+                          ? Center(child: CircularProgressIndicator(color: Color(0xFF6F51FF)))
+                          : ElevatedButton.icon(
+                              onPressed: linkUser,
+                              icon: Icon(Icons.add_rounded, color: Colors.white),
+                              label: Text('Link Elder', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF6F51FF),
+                                minimumSize: Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 24),
+              if (linkedAccounts.isNotEmpty) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Linked Accounts',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ...linkedAccounts.map((account) {
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF2B2B36),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      leading: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF6F51FF).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.person_rounded, color: Color(0xFF6F51FF)),
+                      ),
+                      title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text('${account['email'] ?? ''}
+Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                      ),
+                      isThreeLine: true,
+                      trailing: IconButton(
+                        icon: Icon(Icons.link_off_rounded, color: Colors.redAccent.withOpacity(0.8)),
+                        onPressed: () => unlinkUser(account['_id']),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ],
+            ],
           ),
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            primarySwatch: Colors.teal,
-            scaffoldBackgroundColor: Colors.grey[900],
-            cardColor: Colors.grey[850],
-          ),
-          themeMode: currentMode,
-          initialRoute: '/login',
-          routes: {
-            '/login': (context) => LoginScreen(),
-            '/home': (context) => BottomTabScreen(),
-            '/register': (context) => RegisterScreen(),
-            '/menu': (context) => MenuTab(), 
-          },
-        );
-      },
+        ),
+      ),
     );
   }
 }
@@ -85,65 +209,160 @@ class _BottomTabScreenState extends State<BottomTabScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (_selectedIndex != 0) {
-          setState(() {
-            _selectedIndex = 0;
-          });
-          return false; // Intercept/prevent popping
-        }
-        return false; // Intercept/prevent popping (stay on Home)
-      },
-      child: Scaffold(
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _screens,
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.green,
-          unselectedItemColor: Colors.grey,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.medication),label: 'Medicine',),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-            BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Menu'),
-          ],
+    return Scaffold(
+      backgroundColor: Color(0xFF1C1C23),
+      appBar: AppBar(
+        title: Text('Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 22)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5))
+                  ]
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Color(0xFF6F51FF).withOpacity(0.2),
+                        child: Icon(Icons.person_rounded, size: 40, color: Color(0xFF6F51FF)),
+                      ),
+                      SizedBox(height: 16),
+                      Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                      SizedBox(height: 4),
+                      Text(email, style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+                      SizedBox(height: 16),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF1C1C23),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Color(0xFF3B3B4F)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.qr_code_rounded, size: 16, color: Color(0xFF6F51FF)),
+                            SizedBox(width: 8),
+                            Text("Code: $uniqueCode", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Link Another Account',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: linkCodeController,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Enter Unique Code',
+                          hintStyle: TextStyle(color: Colors.grey.shade500),
+                          prefixIcon: Icon(Icons.link_rounded, color: Colors.grey.shade500),
+                          fillColor: Color(0xFF1C1C23),
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      isLoading
+                          ? Center(child: CircularProgressIndicator(color: Color(0xFF6F51FF)))
+                          : ElevatedButton.icon(
+                              onPressed: linkUser,
+                              icon: Icon(Icons.add_rounded, color: Colors.white),
+                              label: Text('Link Elder', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF6F51FF),
+                                minimumSize: Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 24),
+              if (linkedAccounts.isNotEmpty) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Linked Accounts',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ...linkedAccounts.map((account) {
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF2B2B36),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      leading: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF6F51FF).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.person_rounded, color: Color(0xFF6F51FF)),
+                      ),
+                      title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text('${account['email'] ?? ''}
+Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                      ),
+                      isThreeLine: true,
+                      trailing: IconButton(
+                        icon: Icon(Icons.link_off_rounded, color: Colors.redAccent.withOpacity(0.8)),
+                        onPressed: () => unlinkUser(account['_id']),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-
-
-// /// Home Tab 
-
-// class HomeTab extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('🏠 Home')),
-//       body: Center(
-//   child: Column(
-//     mainAxisAlignment: MainAxisAlignment.center,
-//     children: [
-//       Text(
-//         'Welcome',
-//         style: TextStyle(
-//           fontSize: 24,
-//           fontWeight: FontWeight.bold,
-//           color: Colors.teal,
-//         ),
-//       ),
-//       SizedBox(height: 16),
-//       Padding(
 //         padding: EdgeInsets.symmetric(horizontal: 24.0),
 //         child: Text(
 //           'Your one-stop solution for managing elderly care with compassion. Stay connected, organized, and supportive for your loved ones—all in one app.',
@@ -250,194 +469,162 @@ class _HomeTabState extends State<HomeTab> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
+      backgroundColor: Color(0xFF1C1C23),
       appBar: AppBar(
-        title: Text('🏘 Home', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Colors.teal,
-        centerTitle: true,
+        title: Text('Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 22)),
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          ValueListenableBuilder<ThemeMode>(
-            valueListenable: themeNotifier,
-            builder: (_, mode, __) {
-              return IconButton(
-                icon: Icon(mode == ThemeMode.light ? Icons.dark_mode : Icons.light_mode, color: Colors.white),
-                onPressed: () {
-                  themeNotifier.value = mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-                },
-              );
-            },
-          )
-        ],
+        centerTitle: false,
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: isDark
-                  ? LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.grey.shade900, Colors.black],
-                    )
-                  : LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.teal.shade50, Colors.white],
-                    ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation1,
-                      child: Card(
-                        elevation: 4,
-                        shadowColor: isDark ? Colors.black54 : Colors.teal.withOpacity(0.2),
-                        color: isDark ? Colors.grey.shade800 : Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            children: [
-                              Icon(Icons.volunteer_activism, size: 60, color: Colors.teal),
-                              SizedBox(height: 12),
-                              Text(
-                                "Welcome to ElderNest",
-                                style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.tealAccent : Colors.teal.shade800),
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Connecting caretakers and elders with care and compassion.",
-                                style: TextStyle(fontSize: 14, color: isDark ? Colors.grey.shade300 : Colors.grey[600]),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5))
+                  ]
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Color(0xFF6F51FF).withOpacity(0.2),
+                        child: Icon(Icons.person_rounded, size: 40, color: Color(0xFF6F51FF)),
+                      ),
+                      SizedBox(height: 16),
+                      Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                      SizedBox(height: 4),
+                      Text(email, style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+                      SizedBox(height: 16),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF1C1C23),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Color(0xFF3B3B4F)),
                         ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation2,
-                      child: Card(
-                        elevation: 4,
-                        shadowColor: isDark ? Colors.black54 : Colors.teal.withOpacity(0.2),
-                        color: isDark ? Colors.grey.shade800 : Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                "Share Your Unique Code",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.tealAccent : Colors.teal.shade700),
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                "Give this code to your caregiver or elder to link accounts.",
-                                style: TextStyle(fontSize: 12, color: isDark ? Colors.grey.shade400 : Colors.grey[500]),
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: 16),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                                decoration: BoxDecoration(
-                                  color: isDark ? Colors.grey.shade700 : Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: isDark ? Colors.grey.shade600 : Colors.grey.shade300),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      _uniqueCode,
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 1.5,
-                                          color: isDark ? Colors.white : Colors.black87),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.copy, color: isDark ? Colors.tealAccent : Colors.teal),
-                                      onPressed: () {
-                                        Clipboard.setData(ClipboardData(text: _uniqueCode));
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Code copied to clipboard!')),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.qr_code_rounded, size: 16, color: Color(0xFF6F51FF)),
+                            SizedBox(width: 8),
+                            Text("Code: $uniqueCode", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                          ],
                         ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (_showWelcomeOverlay)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.6),
-                child: Center(
-                  child: ScaleTransition(
-                    scale: _welcomeScaleAnimation,
-                    child: Container(
-                      padding: EdgeInsets.all(24),
-                      margin: EdgeInsets.symmetric(horizontal: 40),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.grey.shade800 : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.check_circle, size: 60, color: Colors.teal),
-                          SizedBox(height: 16),
-                          Text(
-                            'Welcome to ElderNest!',
-                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 10),
-                          CircularProgressIndicator(color: Colors.teal),
-                        ],
-                      ),
-                    ),
+                      )
+                    ],
                   ),
                 ),
               ),
-            ),
-        ],
+              SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Link Another Account',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: linkCodeController,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Enter Unique Code',
+                          hintStyle: TextStyle(color: Colors.grey.shade500),
+                          prefixIcon: Icon(Icons.link_rounded, color: Colors.grey.shade500),
+                          fillColor: Color(0xFF1C1C23),
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      isLoading
+                          ? Center(child: CircularProgressIndicator(color: Color(0xFF6F51FF)))
+                          : ElevatedButton.icon(
+                              onPressed: linkUser,
+                              icon: Icon(Icons.add_rounded, color: Colors.white),
+                              label: Text('Link Elder', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF6F51FF),
+                                minimumSize: Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 24),
+              if (linkedAccounts.isNotEmpty) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Linked Accounts',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ...linkedAccounts.map((account) {
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF2B2B36),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      leading: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF6F51FF).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.person_rounded, color: Color(0xFF6F51FF)),
+                      ),
+                      title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text('${account['email'] ?? ''}
+Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                      ),
+                      isThreeLine: true,
+                      trailing: IconButton(
+                        icon: Icon(Icons.link_off_rounded, color: Colors.redAccent.withOpacity(0.8)),
+                        onPressed: () => unlinkUser(account['_id']),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
 }
+
+
+
 
 
 
@@ -509,7 +696,12 @@ class _MedicineTabState extends State<MedicineTab> {
       );
       final res = jsonDecode(response.body);
       if (response.statusCode == 200 && res['status'] == 1) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Reminder added!')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Reminder added!', style: TextStyle(color: Colors.white)),
+          backgroundColor: Color(0xFF6F51FF),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          behavior: SnackBarBehavior.floating,
+        ));
         fetchReminders();
       }
     } catch (e) {
@@ -527,7 +719,12 @@ class _MedicineTabState extends State<MedicineTab> {
       );
       final res = jsonDecode(response.body);
       if (response.statusCode == 200 && res['status'] == 1) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Reminder deleted!')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Reminder deleted!', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.redAccent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          behavior: SnackBarBehavior.floating,
+        ));
         fetchReminders();
       }
     } catch (e) {
@@ -564,12 +761,12 @@ class _MedicineTabState extends State<MedicineTab> {
       }
       if (searchResults.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No drugs found with that name.')),
+          SnackBar(content: Text('No drugs found with that name.', style: TextStyle(color: Colors.white))),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching drug information.')),
+        SnackBar(content: Text('Error fetching drug information.', style: TextStyle(color: Colors.white))),
       );
     } finally {
       setState(() {
@@ -588,53 +785,87 @@ class _MedicineTabState extends State<MedicineTab> {
       builder: (context) {
         return StatefulBuilder(builder: (context, setStateDialog) {
           return AlertDialog(
-            title: Text('Add Reminder'),
+            backgroundColor: Color(0xFF2B2B36),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            title: Text('Add Reminder', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: nameCtrl,
-                  decoration: InputDecoration(labelText: 'Medicine Name'),
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Medicine Name',
+                    labelStyle: TextStyle(color: Colors.grey.shade400),
+                    fillColor: Color(0xFF1C1C23),
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
                 ),
                 SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Time: ${selectedTime.format(context)}'),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final time = await showTimePicker(context: context, initialTime: selectedTime);
-                        if (time != null) {
-                          setStateDialog(() => selectedTime = time);
-                        }
-                      },
-                      child: Text('Pick Time'),
-                    )
-                  ],
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF1C1C23),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Time: ${selectedTime.format(context)}', style: TextStyle(color: Colors.white, fontSize: 16)),
+                      TextButton(
+                        onPressed: () async {
+                          final time = await showTimePicker(context: context, initialTime: selectedTime);
+                          if (time != null) {
+                            setStateDialog(() => selectedTime = time);
+                          }
+                        },
+                        child: Text('Pick', style: TextStyle(color: Color(0xFF6F51FF), fontWeight: FontWeight.bold)),
+                      )
+                    ],
+                  ),
                 ),
                 SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: selectedFrequency,
+                  dropdownColor: Color(0xFF2B2B36),
+                  style: TextStyle(color: Colors.white),
                   items: ['Daily', 'Weekly', 'As Needed'].map((freq) {
                     return DropdownMenuItem(value: freq, child: Text(freq));
                   }).toList(),
                   onChanged: (val) {
                     if (val != null) setStateDialog(() => selectedFrequency = val);
                   },
-                  decoration: InputDecoration(labelText: 'Frequency'),
+                  decoration: InputDecoration(
+                    labelText: 'Frequency',
+                    labelStyle: TextStyle(color: Colors.grey.shade400),
+                    fillColor: Color(0xFF1C1C23),
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
                 )
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+              TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: Colors.grey))),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF6F51FF),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
                 onPressed: () {
                   if (nameCtrl.text.isNotEmpty) {
                     addReminder(nameCtrl.text, selectedTime.format(context), selectedFrequency);
                     Navigator.pop(context);
                   }
                 },
-                child: Text('Save'),
+                child: Text('Save', style: TextStyle(color: Colors.white)),
               )
             ],
           );
@@ -651,147 +882,162 @@ class _MedicineTabState extends State<MedicineTab> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('👨🏾‍⚕️ Medicine', style: TextStyle(fontWeight: FontWeight.bold)),
-          backgroundColor: Colors.teal,
-          centerTitle: true,
-          elevation: 0,
-          bottom: TabBar(
-            indicatorColor: Colors.white,
-            tabs: [
-              Tab(icon: Icon(Icons.alarm), text: 'Reminders'),
-              Tab(icon: Icon(Icons.search), text: 'Search Drugs'),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            // Tab 1: Reminders
-            isLoadingReminders
-                ? Center(child: CircularProgressIndicator())
-                : reminders.isEmpty
-                    ? Center(
-                        child: Text("No reminders found. Search drugs to add one!"),
-                      )
-                    : ListView.builder(
-                        padding: EdgeInsets.all(16),
-                        itemCount: reminders.length,
-                        itemBuilder: (context, index) {
-                          final rem = reminders[index];
-                          return Card(
-                            margin: EdgeInsets.only(bottom: 12),
-                            child: ListTile(
-                              leading: Icon(Icons.medication, color: Colors.teal, size: 36),
-                              title: Text(rem['medicineName'] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Text('${rem['time']} • ${rem['frequency']}'),
-                              trailing: IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => deleteReminder(rem['_id']),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-            // Tab 2: Search
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Row(
+    return Scaffold(
+      backgroundColor: Color(0xFF1C1C23),
+      appBar: AppBar(
+        title: Text('Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 22)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5))
+                  ]
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: TextField(
-                          controller: searchController,
-                          decoration: InputDecoration(
-                            hintText: "Enter drug name (e.g., Aspirin)",
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Color(0xFF6F51FF).withOpacity(0.2),
+                        child: Icon(Icons.person_rounded, size: 40, color: Color(0xFF6F51FF)),
+                      ),
+                      SizedBox(height: 16),
+                      Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                      SizedBox(height: 4),
+                      Text(email, style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+                      SizedBox(height: 16),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF1C1C23),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Color(0xFF3B3B4F)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.qr_code_rounded, size: 16, color: Color(0xFF6F51FF)),
+                            SizedBox(width: 8),
+                            Text("Code: $uniqueCode", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Link Another Account',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: linkCodeController,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Enter Unique Code',
+                          hintStyle: TextStyle(color: Colors.grey.shade500),
+                          prefixIcon: Icon(Icons.link_rounded, color: Colors.grey.shade500),
+                          fillColor: Color(0xFF1C1C23),
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: searchMedicine,
-                        child: Text('Search'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
+                      SizedBox(height: 20),
+                      isLoading
+                          ? Center(child: CircularProgressIndicator(color: Color(0xFF6F51FF)))
+                          : ElevatedButton.icon(
+                              onPressed: linkUser,
+                              icon: Icon(Icons.add_rounded, color: Colors.white),
+                              label: Text('Link Elder', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF6F51FF),
+                                minimumSize: Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
                     ],
                   ),
-                  SizedBox(height: 16),
-                  if (isSearching)
-                    CircularProgressIndicator()
-                  else
-                    Expanded(
-                      child: searchResults.isEmpty
-                          ? Center(
-                              child: Text(
-                                "Search for a universal drug to see details",
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: searchResults.length,
-                              itemBuilder: (context, index) {
-                                final drug = searchResults[index];
-                                return Card(
-                                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                                  elevation: 2,
-                                  shadowColor: Colors.teal.withOpacity(0.1),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(Icons.medication, color: Colors.teal, size: 24),
-                                            SizedBox(width: 12),
-                                            Expanded(
-                                              child: Text(
-                                                drug['name'] ?? '',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.teal.shade900,
-                                                ),
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: Icon(Icons.add_alarm, color: Colors.teal),
-                                              onPressed: () => _showAddReminderDialog(drug['name'] ?? ''),
-                                              tooltip: 'Add Reminder',
-                                            )
-                                          ],
-                                        ),
-                                        if (drug['synonym'] != null && drug['synonym'].toString().isNotEmpty) ...[
-                                          SizedBox(height: 8),
-                                          Text("SYNONYM", style: TextStyle(fontSize: 10, color: Colors.grey)),
-                                          Text(drug['synonym'], style: TextStyle(fontSize: 13, fontFamily: 'Courier')),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                ],
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 24),
+              if (linkedAccounts.isNotEmpty) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Linked Accounts',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ...linkedAccounts.map((account) {
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF2B2B36),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      leading: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF6F51FF).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.person_rounded, color: Color(0xFF6F51FF)),
+                      ),
+                      title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text('${account['email'] ?? ''}
+Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                      ),
+                      isThreeLine: true,
+                      trailing: IconButton(
+                        icon: Icon(Icons.link_off_rounded, color: Colors.redAccent.withOpacity(0.8)),
+                        onPressed: () => unlinkUser(account['_id']),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
+
+
 
 
 
@@ -951,96 +1197,103 @@ class _ProfileTabState extends State<ProfileTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFF1C1C23),
       appBar: AppBar(
-        title: Text('👤 Profile', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.teal,
-        centerTitle: true,
+        title: Text('Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 22)),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: false,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
+          padding: const EdgeInsets.all(24.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Card(
-                elevation: 4,
-                shadowColor: Colors.teal.withOpacity(0.2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5))
+                  ]
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
                     children: [
                       CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.teal.shade50,
-                        child: Icon(Icons.person, size: 60, color: Colors.teal),
+                        radius: 40,
+                        backgroundColor: Color(0xFF6F51FF).withOpacity(0.2),
+                        child: Icon(Icons.person_rounded, size: 40, color: Color(0xFF6F51FF)),
                       ),
-                      SizedBox(height: 20),
-                      Text(
-                        name,
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        email,
-                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                      ),
-                      SizedBox(height: 12),
+                      SizedBox(height: 16),
+                      Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                      SizedBox(height: 4),
+                      Text(email, style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+                      SizedBox(height: 16),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: Colors.teal.shade50,
-                          borderRadius: BorderRadius.circular(20),
+                          color: Color(0xFF1C1C23),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Color(0xFF3B3B4F)),
                         ),
-                        child: Text(
-                          'My Code: $uniqueCode',
-                          style: TextStyle(fontSize: 13, color: Colors.teal, fontWeight: FontWeight.bold),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.qr_code_rounded, size: 16, color: Color(0xFF6F51FF)),
+                            SizedBox(width: 8),
+                            Text("Code: $uniqueCode", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                          ],
                         ),
-                      ),
+                      )
                     ],
                   ),
                 ),
               ),
               SizedBox(height: 24),
-              Card(
-                elevation: 4,
-                shadowColor: Colors.teal.withOpacity(0.2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Link Account',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+                        'Link Another Account',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Enter the Unique Code of the Elder you want to link with.',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                      SizedBox(height: 15),
+                      SizedBox(height: 16),
                       TextField(
-                        controller: codeController,
+                        controller: linkCodeController,
+                        style: TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          labelText: "Elder's Unique Code",
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          prefixIcon: Icon(Icons.link),
+                          hintText: 'Enter Unique Code',
+                          hintStyle: TextStyle(color: Colors.grey.shade500),
+                          prefixIcon: Icon(Icons.link_rounded, color: Colors.grey.shade500),
+                          fillColor: Color(0xFF1C1C23),
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
                       ),
                       SizedBox(height: 20),
                       isLoading
-                          ? Center(child: CircularProgressIndicator())
+                          ? Center(child: CircularProgressIndicator(color: Color(0xFF6F51FF)))
                           : ElevatedButton.icon(
                               onPressed: linkUser,
-                              icon: Icon(Icons.add),
-                              label: Text('Link Elder'),
+                              icon: Icon(Icons.add_rounded, color: Colors.white),
+                              label: Text('Link Elder', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.teal,
-                                foregroundColor: Colors.white,
-                                minimumSize: Size(double.infinity, 48),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                backgroundColor: Color(0xFF6F51FF),
+                                minimumSize: Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               ),
                             ),
                     ],
@@ -1053,25 +1306,36 @@ class _ProfileTabState extends State<ProfileTab> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Linked Accounts',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 16),
                 ...linkedAccounts.map((account) {
-                  return Card(
-                    elevation: 2,
+                  return Container(
                     margin: EdgeInsets.only(bottom: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF2B2B36),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.teal.shade50,
-                        child: Icon(Icons.person, color: Colors.teal),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      leading: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF6F51FF).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.person_rounded, color: Color(0xFF6F51FF)),
                       ),
-                      title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text('${account['email'] ?? ''}\nCode: ${account['uniqueCode']}'),
+                      title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text('${account['email'] ?? ''}
+Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                      ),
                       isThreeLine: true,
                       trailing: IconButton(
-                        icon: Icon(Icons.link_off, color: Colors.red),
+                        icon: Icon(Icons.link_off_rounded, color: Colors.redAccent.withOpacity(0.8)),
                         onPressed: () => unlinkUser(account['_id']),
                       ),
                     ),
@@ -1090,54 +1354,154 @@ class MenuTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('📝 Menu')),
-      body: Column(
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Menu',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      backgroundColor: Color(0xFF1C1C23),
+      appBar: AppBar(
+        title: Text('Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 22)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 5))
+                  ]
                 ),
-                SizedBox(height: 32),
-                ElevatedButton.icon(
-                  icon: Icon(Icons.logout, color: Colors.white),
-                  label: Text('Logout', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Color(0xFF6F51FF).withOpacity(0.2),
+                        child: Icon(Icons.person_rounded, size: 40, color: Color(0xFF6F51FF)),
+                      ),
+                      SizedBox(height: 16),
+                      Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                      SizedBox(height: 4),
+                      Text(email, style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+                      SizedBox(height: 16),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF1C1C23),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Color(0xFF3B3B4F)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.qr_code_rounded, size: 16, color: Color(0xFF6F51FF)),
+                            SizedBox(width: 8),
+                            Text("Code: $uniqueCode", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                          ],
+                        ),
+                      )
+                    ],
                   ),
-                  onPressed: () {
-                    // Navigate to login screen and remove previous routes
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/login', // login route
-                      (Route<dynamic> route) => false,
-                    );
-                  },
                 ),
+              ),
+              SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF2B2B36),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Link Another Account',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: linkCodeController,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Enter Unique Code',
+                          hintStyle: TextStyle(color: Colors.grey.shade500),
+                          prefixIcon: Icon(Icons.link_rounded, color: Colors.grey.shade500),
+                          fillColor: Color(0xFF1C1C23),
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      isLoading
+                          ? Center(child: CircularProgressIndicator(color: Color(0xFF6F51FF)))
+                          : ElevatedButton.icon(
+                              onPressed: linkUser,
+                              icon: Icon(Icons.add_rounded, color: Colors.white),
+                              label: Text('Link Elder', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF6F51FF),
+                                minimumSize: Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 24),
+              if (linkedAccounts.isNotEmpty) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Linked Accounts',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ...linkedAccounts.map((account) {
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF2B2B36),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      leading: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF6F51FF).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.person_rounded, color: Color(0xFF6F51FF)),
+                      ),
+                      title: Text(account['name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text('${account['email'] ?? ''}
+Code: ${account['uniqueCode']}', style: TextStyle(color: Colors.grey.shade400, height: 1.4)),
+                      ),
+                      isThreeLine: true,
+                      trailing: IconButton(
+                        icon: Icon(Icons.link_off_rounded, color: Colors.redAccent.withOpacity(0.8)),
+                        onPressed: () => unlinkUser(account['_id']),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ],
-            ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 24.0),
-            child: Column(
-              children: [
-                Text(
-                  "© 2026 Aman Asish Gupta",
-                  style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  "Made with ❤️ Eldernest",
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
