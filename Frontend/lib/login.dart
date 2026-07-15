@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'app_styles.dart';
 import 'main.dart'; // or the file where BottomTabScreen is defined
 import 'package:shared_preferences/shared_preferences.dart';
+import 'config.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> loginUser() async {
     setState(() => isLoading = true);
-    final url = Uri.parse('https://elderly-care-backend-giv2.onrender.com/api/userLogin');
+    final url = Uri.parse('${Config.baseUrl}/userLogin');
 
     try {
       final response = await http.post(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_styles.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'config.dart';
 class RegisterScreen extends StatefulWidget {
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
@@ -25,7 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> registerUser() async {
     setState(() => isLoading = true);
 
-    final url = Uri.parse('https://elderly-care-backend-giv2.onrender.com/api/userRegister');
+    final url = Uri.parse('${Config.baseUrl}/userRegister');
     
     print("Sending POST request...");
     print("Name: ${nameController.text}, Email: ${emailController.text}");

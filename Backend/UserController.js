@@ -296,6 +296,118 @@ router.post('/unlinkUser', async (req, res) => {
   }
 });
 
+// Add Medicine Reminder
+router.post('/addReminder', async (req, res) => {
+  try {
+    const { userId, medicineName, time, frequency } = req.body;
+    const { ObjectId } = require('mongodb');
+
+    if (!userId || !medicineName || !time || !frequency) {
+      return res.status(400).json({ status: 0, message: "Missing required fields." });
+    }
+
+    const db = await dbConnection();
+    const users = db.collection("User");
+
+    let userObjectId;
+    try {
+      userObjectId = new ObjectId(userId);
+    } catch (e) {
+      return res.status(400).json({ status: 0, message: "Invalid ID format." });
+    }
+
+    const newReminder = {
+      _id: new ObjectId(),
+      medicineName,
+      time,
+      frequency,
+      createdAt: new Date()
+    };
+
+    await users.updateOne(
+      { _id: userObjectId },
+      { $push: { reminders: newReminder } }
+    );
+
+    res.status(200).json({
+      status: 1,
+      message: "Reminder added successfully",
+      data: newReminder
+    });
+  } catch (error) {
+    console.error("Add Reminder Error:", error);
+    res.status(500).json({ status: 0, message: "Internal server error" });
+  }
+});
+
+// Get Reminders
+router.get('/getReminders/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { ObjectId } = require('mongodb');
+
+    const db = await dbConnection();
+    const users = db.collection("User");
+
+    let userObjectId;
+    try {
+      userObjectId = new ObjectId(userId);
+    } catch (e) {
+      return res.status(400).json({ status: 0, message: "Invalid ID format." });
+    }
+
+    const user = await users.findOne({ _id: userObjectId }, { projection: { reminders: 1 } });
+    if (!user) {
+      return res.status(404).json({ status: 0, message: "User not found." });
+    }
+
+    res.status(200).json({
+      status: 1,
+      message: "Reminders fetched successfully",
+      data: user.reminders || []
+    });
+  } catch (error) {
+    console.error("Get Reminders Error:", error);
+    res.status(500).json({ status: 0, message: "Internal server error" });
+  }
+});
+
+// Delete Reminder
+router.post('/deleteReminder', async (req, res) => {
+  try {
+    const { userId, reminderId } = req.body;
+    const { ObjectId } = require('mongodb');
+
+    if (!userId || !reminderId) {
+      return res.status(400).json({ status: 0, message: "userId and reminderId are required." });
+    }
+
+    const db = await dbConnection();
+    const users = db.collection("User");
+
+    let userObjectId, reminderObjectId;
+    try {
+      userObjectId = new ObjectId(userId);
+      reminderObjectId = new ObjectId(reminderId);
+    } catch (e) {
+      return res.status(400).json({ status: 0, message: "Invalid ID format." });
+    }
+
+    await users.updateOne(
+      { _id: userObjectId },
+      { $pull: { reminders: { _id: reminderObjectId } } }
+    );
+
+    res.status(200).json({
+      status: 1,
+      message: "Reminder deleted successfully"
+    });
+  } catch (error) {
+    console.error("Delete Reminder Error:", error);
+    res.status(500).json({ status: 0, message: "Internal server error" });
+  }
+});
+
 module.exports = router;
 
 
